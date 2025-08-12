@@ -3,8 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # Change if your default branch is different
 
 permissions:
   contents: read
@@ -12,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -25,14 +24,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Upload static files from your repo (e.g., Pinegrow's export folder)
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v4
 
-      # Upload site while honoring .pagesignore
-      - name: Upload site artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: ./  # Change if your HTML files are in a subfolder
 
       - name: Deploy to GitHub Pages
         id: deployment
