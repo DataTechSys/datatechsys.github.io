@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Super Admin · Companies</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+    body{background:#f6f7fb;}
+    .page-card{border:0;border-radius:16px;box-shadow:0 6px 24px rgba(26,26,44,.06)}
+  </style>
+    </head>
+    <body>
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="h4 mb-0">Super Admin — Companies</h1><a class="btn btn-outline-secondary btn-sm" href="login.html">Back to Login</a>
+            </div>
+            <!-- Create company -->
+            <div class="card page-card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Create Company</h5>
+                    <form id="createForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Company Name</label>
+                            <input class="form-control" id="name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Account Number</label>
+                            <input class="form-control" id="acct" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Logo URL</label>
+                            <input class="form-control" id="logo" placeholder="https://.../logo.png">
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- List companies -->
+            <div class="card page-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-0">All Companies</h5><small class="text-muted">Click “Set Active” to work in a tenant context.</small>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="tenantsTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Account</th>
+                                    <th>Logo</th>
+                                    <th>Active?</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/app-auth.js"></script>
+        <script>
+  // Super Admin only
+  RBAC.bootstrapForSuperAdmin(); // dev convenience (sets a super session if none)
+  if (!RBAC.isSuper()) { alert('Super Admin only'); window.location.replace('login.html'); }
+
+  const tBody = document.querySelector('#tenantsTable tbody');
+
+  function render() {
+    const tenants = RBAC.getTenants();
+    const active  = RBAC.getActiveTenantId();
+    tBody.innerHTML = '';
+    tenants.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${t.name}</td>
+        <td>${t.accountId}</td>
+        <td><img src="${t.logoUrl || 'images/Koobs_Logo_Green_.png'}" alt="logo" style="height:28px"></td>
+        <td>${active===t.id ? '<span class="badge bg-success">Active</span>' : ''}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" data-active="${t.id}">Set Active</button>
+            <button class="btn btn-outline-primary" data-edit="${t.id}">Edit</button>
+            <a class="btn btn-outline-dark" href="admin-invite.html?tenantId=${t.id}">Open Admin</a>
+          </div>
+        </td>`;
+      tBody.appendChild(tr);
+    });
+  }
+
+  render();
+
+  // Create
+  document.getElementById('createForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    try {
+      const id = RBAC.createTenant({ name: name.value, accountId: acct.value, logoUrl: logo.value });
+      RBAC.setActiveTenant(id);
+      e.target.reset();
+      render();
+      alert('Company created.');
+    } catch (err) { alert(err.message); }
+  });
+
+  // Actions
+  tBody.addEventListener('click', (e)=>{
+    const activeBtn = e.target.closest('[data-active]');
+    const editBtn   = e.target.closest('[data-edit]');
+    if (activeBtn) {
+      RBAC.setActiveTenant(activeBtn.getAttribute('data-active'));
+      render();
+    }
+    if (editBtn) {
+      const id = editBtn.getAttribute('data-edit');
+      const t  = RBAC.getTenants().find(x=>x.id===id);
+      const name = prompt('Company name:', t.name); if (name==null) return;
+      const acct = prompt('Account number:', t.accountId); if (acct==null) return;
+      const logo = prompt('Logo URL:', t.logoUrl || ''); if (logo==null) return;
+      RBAC.updateTenant(id, { name, accountId: acct, logoUrl: logo });
+      render();
+    }
+  });
+</script>
+    </body>
+</html>
