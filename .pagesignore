@@ -1,0 +1,19 @@
+# Pinegrow backup files
+_pgbackup/
+_pginfo/
+*.pgml
+pinegrow.json
+
+# Design and source files not needed for web
+*.psd
+*.ai
+*.xcf
+*.sketch
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Other unused files
+README.md
+LICENSE
