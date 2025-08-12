@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Login · Koobs Console</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+    body { background:#f5f6f8; }
+    .login-card {
+      max-width: 380px; margin: 10vh auto; padding: 2rem;
+      background:#fff; border-radius:.75rem; box-shadow:0 12px 30px rgba(0,0,0,.07);
+    }
+    .brand { text-align:center; }
+    .brand img { max-width: 140px; }
+  </style>
+    </head>
+    <body>
+        <div class="login-card">
+            <div class="brand">
+                <img src="images/Koobs_Logo_Green_.png" alt="Koobs"/>
+                <h4 class="mt-3 mb-0">Koobs Console</h4><small class="text-muted">Please sign in</small>
+            </div>
+            <form id="loginForm" class="mt-4">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input id="username" class="form-control" autocomplete="username" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input id="password" type="password" class="form-control" autocomplete="current-password" required/>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Sign in</button>
+            </form>
+            <div id="loginMessage" class="text-danger small mt-3" role="alert" hidden></div>
+        </div>
+        <script>
+    // Demo-only credentials. Replace with a real backend when ready.
+    const VALID_USER = 'admin';
+    const VALID_PASS = '1234';
+
+    // Already authenticated? Skip login.
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      window.location.replace('dashboard.html');
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (u === VALID_USER && p === VALID_PASS) {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('loggedUser', u);
+        window.location.href = 'dashboard.html';
+      } else {
+        const msg = document.getElementById('loginMessage');
+        msg.textContent = 'Invalid username or password.'; msg.hidden = false;
+      }
+    });
+  </script>
+    </body>
+</html>

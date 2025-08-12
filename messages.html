@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Messages · Koobs Console</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="dashboard.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"><a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><img src="images/Koobs_Logo_Green_.png" width="100" alt="Koobs"/></a>
+            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="#" id="logoutBtn">Sign out</a>
+                </li>
+            </ul>
+        </header>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar: Messages active -->
+                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                    <div class="position-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="dashboard.html"><span data-feather="home"></span> Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="orders.html"><span data-feather="file-text"></span> Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="customers.html"><span data-feather="users"></span> Customers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="messages.html"><span data-feather="message-circle"></span> Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="reports.html"><span data-feather="bar-chart-2"></span> Reports</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="settings.html"><span data-feather="settings"></span> Setting</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Messages</h1>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <form class="row g-2">
+                                <div class="col-md-4">
+                                    <input class="form-control" placeholder="Search conversations…"/>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-outline-secondary" type="button">Filter</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Ahmed <span class="badge bg-primary rounded-pill">2</span>
+                                </li>
+                                <li class="list-group-item">Fatma</li>
+                                <li class="list-group-item">Ameer</li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header">Conversation</div>
+                                <div class="card-body" style="height:350px; overflow:auto;">
+                                    <p><strong>Ahmed:</strong> Hello, I have a question about my order.</p>
+                                    <p><strong>Agent:</strong> Sure! What’s your order number?</p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group">
+                                        <input class="form-control" placeholder="Type a message…"/>
+                                        <button class="btn btn-primary" type="button">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script src="assets/js/popper.min.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" crossorigin="anonymous"></script>
+        <script>
+  if (localStorage.getItem('isLoggedIn') !== 'true') { window.location.replace('login.html'); }
+  document.getElementById('logoutBtn')?.addEventListener('click', e => { e.preventDefault(); localStorage.clear(); window.location.href='login.html'; });
+  feather.replace();
+</script>
+    </body>
+</html>
