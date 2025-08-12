@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Account Settings · Console</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+    body{background:#f6f7fb;}
+    .page-card{border:0;border-radius:16px;box-shadow:0 6px 24px rgba(26,26,44,.06)}
+  </style>
+    </head>
+    <body>
+        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"><a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><img data-brand-logo src="images/Koobs_Logo_Green_.png" width="100" alt="Logo"/></a>
+            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="#" id="logoutBtn">Sign out</a>
+                </li>
+            </ul>
+        </header>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar (Settings active) -->
+                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                    <div class="position-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="dashboard.html"><span data-feather="home"></span> Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="orders.html"><span data-feather="file-text"></span> Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="customers.html"><span data-feather="users"></span> Customers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="messages.html"><span data-feather="message-circle"></span> Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="reports.html"><span data-feather="bar-chart-2"></span> Reports</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="account.html"><span data-feather="settings"></span> Setting</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                        <h1 class="h3 mb-0">Account Settings</h1><span class="text-muted small" data-brand-name></span>
+                    </div>
+                    <!-- Company card -->
+                    <div class="card page-card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Company</h5>
+                            <form id="companyForm" class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Company Name</label>
+                                    <input class="form-control" id="cmpName"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Account Number</label>
+                                    <input class="form-control" id="cmpAcct"/>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Logo URL</label>
+                                    <input class="form-control" id="cmpLogo"/>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary" type="submit">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Users card -->
+                    <div class="card page-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Users</h5>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#inviteModal"><span data-feather="user-plus"></span> Invite user
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="usersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <!-- Invite Modal -->
+        <div class="modal fade" id="inviteModal" tabindex="-1">
+            <div class="modal-dialog">
+                <form class="modal-content" id="inviteForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Invite User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input class="form-control" id="invName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="invEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" id="invRole" required>
+                                <option value="owner">Owner</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="agent">Agent</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="form-text">Demo login password is <b>1234</b> for all users (front-end only).
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Send invite</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script src="assets/js/popper.min.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" crossorigin="anonymous"></script>
+        <script src="js/app-auth.js"></script>
+        <script>
+  // --- Auth & branding guards ---
+  RBAC.bootstrapForSuperAdmin(); // dev convenience
+  RBAC.requireAuth();
+  RBAC.applyBranding();
+
+  // Only Owner/Admin can manage company/users
+  const me = RBAC.currentUser();
+  if (!RBAC.can('tenant:update', me?.role)) {
+    alert('You do not have permission to view Account Settings.');
+    window.location.replace('dashboard.html');
+  }
+
+  document.getElementById('logoutBtn')?.addEventListener('click', e => { e.preventDefault(); RBAC.logout(); window.location.href='login.html'; });
+  feather.replace();
+
+  // --- Fill company form ---
+  const t = RBAC.getTenant();
+  document.getElementById('cmpName').value = t?.name || '';
+  document.getElementById('cmpAcct').value = t?.accountId || '';
+  document.getElementById('cmpLogo').value = t?.logoUrl || '';
+
+  document.getElementById('companyForm').addEventListener('submit', e => {
+    e.preventDefault();
+    RBAC.updateTenant(t.id, {
+      name: document.getElementById('cmpName').value,
+      accountId: document.getElementById('cmpAcct').value,
+      logoUrl: document.getElementById('cmpLogo').value
+    });
+    RBAC.applyBranding();
+    alert('Company updated.');
+  });
+
+  // --- Users table ---
+  function renderUsers() {
+    const tbody = document.querySelector('#usersTable tbody');
+    tbody.innerHTML = '';
+    RBAC.getUsers(t.id).forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td class="text-capitalize">${u.role.replace('_',' ')}</td>
+        <td>${u.status}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" data-edit="${u.id}">Edit</button>
+            <button class="btn btn-outline-danger" data-del="${u.id}">Delete</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  renderUsers();
+
+  // Invite
+  document.getElementById('inviteForm').addEventListener('submit', e => {
+    e.preventDefault();
+    try {
+      RBAC.inviteUser({
+        tenantId: t.id,
+        name: document.getElementById('invName').value,
+        email: document.getElementById('invEmail').value,
+        role: document.getElementById('invRole').value
+      });
+      document.getElementById('inviteForm').reset();
+      document.querySelector('#inviteModal .btn-close').click();
+      renderUsers();
+    } catch (err) { alert(err.message); }
+  });
+
+  // Row actions
+  document.querySelector('#usersTable').addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del]'); const edit = e.target.closest('[data-edit]');
+    if (del) {
+      if (confirm('Delete this user?')) { RBAC.deleteUser(del.getAttribute('data-del')); renderUsers(); }
+    }
+    if (edit) {
+      const id = edit.getAttribute('data-edit');
+      const role = prompt('New role (owner/admin/manager/agent/viewer):');
+      if (role) { RBAC.updateUser(id, { role }); renderUsers(); }
+    }
+  });
+</script>
+    </body>
+</html>

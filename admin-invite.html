@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Invite</title>
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <div class="container py-5">
+            <h1 class="mb-4">Invite Admin</h1>
+            <form id="inviteAdminForm">
+                <div class="mb-3">
+                    <label for="adminEmail" class="form-label">Admin Email</label>
+                    <input type="email" class="form-control" id="adminEmail" placeholder="Enter admin email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" required>
+                        <option value="">Select role</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Send Invite</button>
+            </form>
+        </div>
+        <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script>
+document.getElementById('inviteAdminForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Invite sent successfully!');
+    // TODO: Add your backend API call here
+});
+</script>
+    </body>
+</html>

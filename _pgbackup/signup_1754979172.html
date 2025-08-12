@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Complete Your Account</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+    body{background:#f5f6f8;}
+    .card-box{max-width:520px;margin:9vh auto;border:0;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+  </style>
+    </head>
+    <body>
+        <div class="card card-box">
+            <div class="card-body p-4">
+                <h3 class="mb-1">Create your account</h3>
+                <div class="text-muted mb-3" id="coLine"></div>
+                <form id="signupForm" class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Full Name</label>
+                        <input class="form-control" id="name" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="pass" required>
+                        <div class="form-text">Demo app: any password accepted; login uses <b>1234</b>.
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">Create Account</button>
+                </form>
+                <div class="mt-3">
+                    <a href="login.html">Back to login</a>
+                </div>
+            </div>
+        </div>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/app-auth.js"></script>
+        <script>
+  // Read params
+  const qs = new URLSearchParams(location.search);
+  const tenantId = qs.get('tenantId');
+  const token    = qs.get('token');
+  const prefName = qs.get('name') || '';
+  const prefMail = qs.get('email') || '';
+  const prefRole = (qs.get('role') || 'viewer').toLowerCase();
+
+  // Load tenant and invite
+  const INV_KEY = 'invites';
+  const invs = JSON.parse(localStorage.getItem(INV_KEY) || '[]');
+  const invite = invs.find(i => i.token === token && i.tenantId === tenantId);
+
+  const tenant = RBAC.getTenants().find(t => t.id === tenantId);
+  if (!tenant || !invite) {
+    alert('Invalid or expired invite.');
+    window.location.replace('login.html');
+  }
+
+  document.getElementById('coLine').textContent = `${tenant.name} — ${tenant.accountId}`;
+  document.getElementById('name').value  = prefName || invite.name || '';
+  document.getElementById('email').value = prefMail || invite.email || '';
+
+  // On submit: create the user in this tenant (front‑end demo)
+  document.getElementById('signupForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+
+    // Directly append to USERS store (bypassing RBAC permission for invitee)
+    const USERS_KEY = 'users';
+    const all = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    // If exists, bail
+    if (all.some(u=>u.tenantId===tenantId && u.email===email.value.trim())) {
+      alert('User already exists. Try logging in.'); window.location.replace('login.html'); return;
+    }
+    all.push({
+      id: 'id-' + Math.random().toString(36).slice(2,10),
+      tenantId, name: name.value.trim(), email: email.value.trim(),
+      role: prefRole, status: 'active'
+    });
+    localStorage.setItem(USERS_KEY, JSON.stringify(all));
+
+    // Remove invite
+    const remain = invs.filter(i=>i.token!==token);
+    localStorage.setItem(INV_KEY, JSON.stringify(remain));
+
+    // Set active tenant and go to login
+    RBAC.setActiveTenant(tenantId);
+    alert('Account created. You can now log in (demo password: 1234).');
+    window.location.replace('login.html');
+  });
+</script>
+    </body>
+</html>

@@ -3,60 +3,104 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Login · Koobs Console</title>
+        <title>Login · Console</title>
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
         <style>
     body { background:#f5f6f8; }
-    .login-card {
-      max-width: 380px; margin: 10vh auto; padding: 2rem;
-      background:#fff; border-radius:.75rem; box-shadow:0 12px 30px rgba(0,0,0,.07);
-    }
+    .login-card { max-width: 420px; margin: 9vh auto; padding: 2rem;
+      background:#fff; border-radius:.75rem; box-shadow:0 12px 30px rgba(0,0,0,.07); }
     .brand { text-align:center; }
     .brand img { max-width: 140px; }
+    .hint { color:#6c757d; font-size:.9rem; }
   </style>
     </head>
     <body>
         <div class="login-card">
-            <div class="brand">
-                <img src="images/Koobs_Logo_Green_.png" alt="Koobs"/>
-                <h4 class="mt-3 mb-0">Koobs Console</h4><small class="text-muted">Please sign in</small>
+            <div class="brand mb-3">
+                <img data-brand-logo src="images/Koobs_Logo_Green_.png" alt="Logo"/>
+                <h4 class="mt-3 mb-0" data-brand-name>Console</h4><small class="text-muted" id="acctLine"></small>
             </div>
-            <form id="loginForm" class="mt-4">
+            <form id="loginForm" class="mt-3">
                 <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input id="username" class="form-control" autocomplete="username" required/>
+                    <label class="form-label">Company</label>
+                    <select id="tenantId" class="form-select" required>
+                        <!-- filled by JS -->
+                    </select>
+                    <div class="form-text">Pick your company. Super Admin can choose any.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input id="email" type="email" class="form-control" autocomplete="username" required/>
+                    <div class="form-text">Demo super admin: <code>super@local</code>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
                     <input id="password" type="password" class="form-control" autocomplete="current-password" required/>
+                    <div class="form-text">Demo password for all users: <b>1234</b>
+                    </div>
                 </div>
                 <button class="btn btn-primary w-100" type="submit">Sign in</button>
             </form>
             <div id="loginMessage" class="text-danger small mt-3" role="alert" hidden></div>
+            <div class="text-center mt-3"><span class="hint">Got an invite link? Complete signup first.</span>
+                <br/><a class="small" href="signup.html">Go to Signup</a>
+            </div>
+            <div class="text-center mt-3"><a class="small text-muted" href="super-admin.html">Super Admin Tools</a>
+            </div>
         </div>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/app-auth.js"></script>
         <script>
-    // Demo-only credentials. Replace with a real backend when ready.
-    const VALID_USER = 'admin';
-    const VALID_PASS = '1234';
+  // If already logged in, go straight to dashboard
+  if (RBAC.session()) { window.location.replace('dashboard.html'); }
 
-    // Already authenticated? Skip login.
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-      window.location.replace('dashboard.html');
+  // Populate companies (tenants)
+  const sel = document.getElementById('tenantId');
+  const tenants = RBAC.getTenants();
+  tenants.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id;
+    o.textContent = `${t.name} — ${t.accountId}`;
+    sel.appendChild(o);
+  });
+
+  // Choose a default active tenant
+  if (tenants.length) {
+    const currentActive = RBAC.getActiveTenantId() || tenants[0].id;
+    RBAC.setActiveTenant(currentActive);
+    sel.value = currentActive;
+  }
+
+  // Update branding when company changes
+  function applyBrand() {
+    RBAC.applyBranding();
+    const t = RBAC.getTenant();
+    document.getElementById('acctLine').textContent = t ? `Account: ${t.accountId}` : '';
+  }
+  applyBrand();
+
+  sel.addEventListener('change', () => {
+    RBAC.setActiveTenant(sel.value);
+    applyBrand();
+  });
+
+  // Handle login
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tenantId = sel.value;
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    const res = RBAC.login({ email, password, tenantId });
+    if (res.ok) {
+      window.location.href = 'dashboard.html';
+    } else {
+      const m = document.getElementById('loginMessage');
+      m.textContent = res.error || 'Login failed';
+      m.hidden = false;
     }
-
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value.trim();
-      if (u === VALID_USER && p === VALID_PASS) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loggedUser', u);
-        window.location.href = 'dashboard.html';
-      } else {
-        const msg = document.getElementById('loginMessage');
-        msg.textContent = 'Invalid username or password.'; msg.hidden = false;
-      }
-    });
-  </script>
+  });
+</script>
     </body>
 </html>

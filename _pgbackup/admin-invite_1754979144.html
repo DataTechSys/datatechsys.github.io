@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Admin · Invite Users</title>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+    body{background:#f6f7fb;}
+    .page-card{border:0;border-radius:16px;box-shadow:0 6px 24px rgba(26,26,44,.06)}
+  </style>
+    </head>
+    <body>
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="h4 mb-0">Invite Users</h1>
+                <div><a class="btn btn-outline-secondary btn-sm" href="dashboard.html">Dashboard</a><a class="btn btn-outline-secondary btn-sm" href="account.html">Account</a>
+                </div>
+            </div>
+            <div class="alert alert-info">
+                Active Company: <strong id="coName"></strong> (<span id="coAcct"></span>)
+            </div>
+            <div class="card page-card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Invite by Email</h5>
+                    <form id="inviteForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Full Name</label>
+                            <input class="form-control" id="invName" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="invEmail" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" id="invRole" required>
+                                <option value="owner">Owner</option>
+                                <option value="admin" selected>Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="agent">Agent</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">Generate Invite Link</button><a id="mailtoBtn" class="btn btn-outline-secondary disabled" target="_blank">Send Email</a>
+                            <button id="copyBtn" type="button" class="btn btn-outline-secondary disabled">Copy Link</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card page-card">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Invites</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="invitesTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Link</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/app-auth.js"></script>
+        <script>
+  // Guard: must be logged in and have permission to invite
+  RBAC.requireAuth();
+  const me = RBAC.currentUser();
+  if (!RBAC.can('user:invite', me?.role)) { alert('No permission to invite users.'); window.location.replace('dashboard.html'); }
+
+  // Tenant context (from query or active)
+  const urlTenant = new URLSearchParams(location.search).get('tenantId');
+  if (urlTenant) RBAC.setActiveTenant(urlTenant);
+  const tenant = RBAC.getTenant();
+  if (!tenant) { alert('No active company'); window.location.replace('dashboard.html'); }
+
+  // Branding text
+  document.getElementById('coName').textContent = tenant.name;
+  document.getElementById('coAcct').textContent = tenant.accountId;
+
+  // Simple invite storage (front‑end demo)
+  const INV_KEY = 'invites';
+  const _readInv = ()=> JSON.parse(localStorage.getItem(INV_KEY) || '[]');
+  const _writeInv = (v)=> localStorage.setItem(INV_KEY, JSON.stringify(v));
+  const _uuid = ()=> 'tok-' + Math.random().toString(36).slice(2,10);
+
+  // Render invites for this tenant
+  const tbody = document.querySelector('#invitesTable tbody');
+  function renderInvites(){
+    const invs = _readInv().filter(i=>i.tenantId===tenant.id);
+    tbody.innerHTML = '';
+    invs.forEach(i=>{
+      const tr = document.createElement('tr');
+      const link = `${location.origin}${location.pathname.replace('admin-invite.html','')}signup.html?tenantId=${tenant.id}&token=${i.token}`;
+      tr.innerHTML = `
+        <td>${i.name}</td>
+        <td>${i.email}</td>
+        <td class="text-capitalize">${i.role}</td>
+        <td class="text-truncate" style="max-width:320px"><a href="${link}" target="_blank">${link}</a></td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-secondary" data-copy="${i.token}">Copy</button>
+          <button class="btn btn-sm btn-outline-danger" data-del="${i.token}">Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  renderInvites();
+
+  // Generate invite
+  const mailtoBtn = document.getElementById('mailtoBtn');
+  const copyBtn   = document.getElementById('copyBtn');
+
+  document.getElementById('inviteForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const name = invName.value.trim();
+    const email= invEmail.value.trim();
+    const role = invRole.value;
+    const token= _uuid();
+
+    const invites = _readInv();
+    invites.push({ token, tenantId: tenant.id, name, email, role, createdAt: Date.now() });
+    _writeInv(invites);
+    renderInvites();
+
+    const link = `${location.origin}${location.pathname.replace('admin-invite.html','')}signup.html?tenantId=${tenant.id}&token=${token}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
+
+    // Prepare email
+    const subject = encodeURIComponent(`You're invited to ${tenant.name} Console`);
+    const body = encodeURIComponent(`Hi ${name},\n\nYou've been invited to ${tenant.name} Console as ${role}.\nClick to complete your account:\n\n${link}\n\n(For demo, default password after signup is 1234.)\n`);
+    mailtoBtn.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
+    mailtoBtn.classList.remove('disabled');
+
+    // Copy button
+    copyBtn.classList.remove('disabled');
+    copyBtn.onclick = ()=> { navigator.clipboard.writeText(link); copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy Link',1200); };
+
+    alert('Invite link generated. You can email it or copy the link.');
+    e.target.reset();
+  });
+
+  // Row actions
+  tbody.addEventListener('click', (e)=>{
+    const copy = e.target.closest('[data-copy]');
+    const del  = e.target.closest('[data-del]');
+    if (copy) {
+      const tok = copy.getAttribute('data-copy');
+      const link = `${location.origin}${location.pathname.replace('admin-invite.html','')}signup.html?tenantId=${tenant.id}&token=${tok}`;
+      navigator.clipboard.writeText(link);
+      copy.textContent = 'Copied!';
+      setTimeout(()=>copy.textContent='Copy',1000);
+    }
+    if (del) {
+      const tok = del.getAttribute('data-del');
+      const remain = _readInv().filter(i=>i.token!==tok);
+      _writeInv(remain);
+      renderInvites();
+    }
+  });
+</script>
+    </body>
+</html>

@@ -3,21 +3,16 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Dashboard · Console</title>
+        <title>Dashboard · Koobs Console</title>
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-        <style>
-    .sidebar .nav-link.active{color:#0d6efd;font-weight:600}
-  </style>
+        <link href="dashboard.css" rel="stylesheet"/>
     </head>
     <body>
-        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"><a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"> <img data-brand-logo src="images/Koobs_Logo_Green_.png" width="100" alt="Brand"/> </a>
+        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"><a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"> <img src="images/Koobs_Logo_Green_.png" width="100" alt="Koobs"/> </a>
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
             </button>
             <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>
-            <ul class="navbar-nav px-3 align-items-center">
-                <li class="nav-item me-2" data-company-switcher-wrap>
-                    <select id="companySwitcher" class="form-select form-select-sm"></select>
-                </li>
+            <ul class="navbar-nav px-3">
                 <li class="nav-item text-nowrap">
                     <a class="nav-link" href="#" id="logoutBtn">Sign out</a>
                 </li>
@@ -25,10 +20,10 @@
         </header>
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar -->
+                <!-- Sidebar: mark Dashboard active -->
                 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                     <div class="position-sticky pt-3">
-                        <ul class="nav flex-column" id="mainLinks">
+                        <ul class="nav flex-column">
                             <li class="nav-item">
                                 <a class="nav-link active" href="dashboard.html"><span data-feather="home"></span> Dashboard</a>
                             </li>
@@ -47,28 +42,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="settings.html"><span data-feather="settings"></span> Setting</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="account.html"><span data-feather="id-card"></span> Account</a>
-                            </li>
                         </ul>
-                        <!-- Super Admin only -->
-                        <div id="superLinks" class="mt-4 d-none">
-                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"> <span>Super Admin</span> </h6>
-                            <ul class="nav flex-column mb-2">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="super-admin.html"><span data-feather="briefcase"></span> Companies</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="admin-invite.html"><span data-feather="user-plus"></span> Admin · Invite</a>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </nav>
-                <!-- Main -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Dashboard <small class="text-muted ms-2" data-brand-name></small></h1>
+                        <h1 class="h2">Dashboard</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <div class="btn-group me-2">
                                 <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
@@ -123,20 +102,19 @@
         <script src="bootstrap/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" crossorigin="anonymous"></script>
-        <script>feather.replace();</script>
-        <!-- Guards + RBAC -->
-        <script src="js/app-auth.js"></script>
         <script>
-  RBAC.requireAuth();
-  RBAC.applyBranding();
+  // Auth guard
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.replace('login.html');
+  }
 
-  if (RBAC.isSuper()) document.getElementById('superLinks')?.classList.remove('d-none');
-
-  RBAC.renderCompanySwitcher('#companySwitcher');
-
+  // Logout
   document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
-    e.preventDefault(); RBAC.logout(); window.location.href='login.html';
+    e.preventDefault(); localStorage.clear(); window.location.href = 'login.html';
   });
+
+  // Icons
+  feather.replace();
 
   // Demo chart
   var ctx = document.getElementById('myChart');

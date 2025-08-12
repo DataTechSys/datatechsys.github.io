@@ -1,0 +1,54 @@
+<!-- include js/app-auth.js in <head> or before </body> -->
+<script src="js/app-auth.js"></script>
+<script>
+  // If already logged in, go to dashboard
+  if (RBAC.session()) window.location.replace('dashboard.html');
+</script>
+<div class="login-card">
+    <div class="brand mb-3 text-center">
+        <img data-brand-logo src="images/Koobs_Logo_Green_.png" alt="Logo" style="max-width:140px"/>
+        <h4 class="mt-2 mb-0" data-brand-name>Console</h4>
+    </div>
+    <form id="loginForm" class="mt-3">
+        <div class="mb-3">
+            <label class="form-label">Company</label>
+            <select id="tenantId" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input id="email" type="email" class="form-control" required/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input id="password" type="password" class="form-control" required/>
+            <div class="form-text">Demo password: <b>1234</b>
+            </div>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Sign in</button>
+    </form>
+    <div id="loginMessage" class="text-danger small mt-3" hidden></div>
+</div>
+<script>
+  // Populate companies (tenants) – created by SUPER ADMIN beforehand
+  const sel = document.getElementById('tenantId');
+  RBAC.getTenants().forEach(t => {
+    const o = document.createElement('option'); o.value = t.id; o.textContent = `${t.name} — ${t.accountId}`;
+    sel.appendChild(o);
+  });
+  // Keep chosen tenant as active (for branding)
+  sel.addEventListener('change', () => RBAC.setActiveTenant(sel.value));
+  if (!RBAC.getActiveTenantId() && sel.options.length) RBAC.setActiveTenant(sel.value);
+
+  RBAC.applyBranding();
+
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const res = RBAC.login({
+      tenantId: document.getElementById('tenantId').value,
+      email   : document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value
+    });
+    if (res.ok) window.location.href = 'dashboard.html';
+    else { const m = document.getElementById('loginMessage'); m.textContent = res.error; m.hidden = false; }
+  });
+</script>
